@@ -8,24 +8,34 @@
 import SwiftUI
 
 struct CardView: View {
-    let card: Card
+    var card: Card
     
     var body: some View {
-        GeometryReader {_ in
-            ZStack {
+        ZStack {
+            if (card.isChosen) {
+                RoundedRectangle(cornerRadius: 10).fill(.green)
+                HStack {
+                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
+                        card.shape
+                            .frame(width: CGFloat(20), height: CGFloat(20), alignment: .center)
+                    }
+                }
+            } else {
                 RoundedRectangle(cornerRadius: 10).fill(.white)
                 HStack {
                     ForEach(1...card.numberOfShapes, id: \.self) {_ in
                         card.shape
+                            .frame(width: CGFloat(20), height: CGFloat(20), alignment: .center)
                     }
-                }
+                }.border(Color.gray)
             }
+            
         }
     }
 }
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(card: Card(numberOfShapes: 3, color: .red, pattern: "Solid"))
+        CardView(card: Card(numberOfShapes: 3, color: .red, pattern: "Solid", shapeString: "Circle"))
     }
 }

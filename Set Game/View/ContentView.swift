@@ -11,8 +11,12 @@ struct ContentView: View {
     @ObservedObject var setGameViewModel: SetGameViewModel
     
     var body: some View {
-        ForEach(setGameViewModel.cards) { card in
-            CardView(card: card)
+        LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3)) {
+            ForEach(setGameViewModel.cards) { card in
+                CardView(card: card).onTapGesture(perform: {
+                    setGameViewModel.choose(card: card)
+                })
+            }
         }
     }
 }
