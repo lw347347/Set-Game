@@ -15,27 +15,22 @@ struct CardView: View {
             if (card.isChosen) {
                 RoundedRectangle(cornerRadius: 10).fill(.green)
                 HStack {
-                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
-                        card.shape
-                            .frame(width: CGFloat(20), height: CGFloat(20), alignment: .center)
+                    ForEach(1...card.numberOfShapes.numberOfShapes(), id: \.self) {_ in
+                        card.shape.shape().actualShape
                     }
                 }
+                .frame(width: CGFloat(20), height: CGFloat(20), alignment: .center)
             } else {
                 RoundedRectangle(cornerRadius: 10).fill(.white)
                 HStack {
-                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
-                        card.shape
-                            .frame(width: CGFloat(20), height: CGFloat(20), alignment: .center)
+                    ForEach(1...card.numberOfShapes.numberOfShapes(), id: \.self) {_ in
+                        card.shape.shape().actualShape
                     }
-                }.border(Color.gray)
+                }
+                .border(Color.gray)
+                .frame(width: CGFloat(20), height: CGFloat(20), alignment: .center)
             }
             
         }
-    }
-}
-
-struct CardView_Previews: PreviewProvider {
-    static var previews: some View {
-        CardView(card: Card(numberOfShapes: 3, color: .red, pattern: "Solid", shapeString: "Circle"))
     }
 }
