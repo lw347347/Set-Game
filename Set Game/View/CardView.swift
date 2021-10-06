@@ -15,16 +15,16 @@ struct CardView: View {
             if (card.isChosen) {
                 RoundedRectangle(cornerRadius: 10).fill(.green)
                 HStack {
-                    ForEach(1...card.numberOfShapes.numberOfShapes(), id: \.self) {_ in
-                        card.shape.shape().actualShape
+                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
+                        RoundedRectangle(cornerRadius: 10).fill(.green)
                     }
                 }
                 .frame(width: CGFloat(20), height: CGFloat(20), alignment: .center)
             } else {
                 RoundedRectangle(cornerRadius: 10).fill(.white)
                 HStack {
-                    ForEach(1...card.numberOfShapes.numberOfShapes(), id: \.self) {_ in
-                        card.shape.shape().actualShape
+                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
+                        RoundedRectangle(cornerRadius: 10).fill(.green)
                     }
                 }
                 .border(Color.gray)
@@ -32,5 +32,24 @@ struct CardView: View {
             }
             
         }
+    }
+}
+
+struct CardView_Previews: PreviewProvider {
+    static var previews: some View {
+        CardView(card: Card(shape: "Circle", numberOfShapes: 3, color: Color.red, opacity: 0.5))
+    }
+}
+
+@ViewBuilder
+private func shapeBody(shape: String) -> some View {
+    if (shape == "Circle") {
+        ZStack {
+            Circle()
+        }
+    } else if (shape == "Squigly") {
+        RoundedRectangle(cornerRadius: 10)
+    } else {
+        Image("hello")
     }
 }

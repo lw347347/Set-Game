@@ -11,13 +11,9 @@ import SwiftUI
 struct SetGame {
     var currentlyDisplayedCards: [Card] = []
     var numberOfCardsMatched: Int = 0
-    let listOfColors: [Attributes] = [Attributes.setColor(.red), Attributes.setColor(.yellow), Attributes.setColor(.blue)]
-    let listOfShapes = [
-        Attributes.setShape(CustomShape(actualShape: AnyShape(Circle()), shapeString: "Circle")),
-        Attributes.setShape(CustomShape(actualShape: AnyShape(Rectangle()), shapeString: "Rectange")),
-        Attributes.setShape(CustomShape(actualShape: AnyShape(Circle()), shapeString: "Ellipse"))
-    ]
-    let listOfPatterns = [Attributes.setPattern("Solid"), Attributes.setPattern("Blank"), Attributes.setPattern("Striped")]
+    let listOfColors: [Color] = [.red, .yellow, .blue]
+    let listOfShapes: [String] = ["Circle", "Square", "Squiggle"]
+    let listOfOpacities: [CGFloat] = [0, 0.5, 1]
     
     init() {
         for _ in 0...15 {
@@ -70,12 +66,13 @@ struct SetGame {
             }
         }
         
-        func helperFunction(card1Value: Attributes, card2Value: Attributes, possibleValues: [Attributes]) -> Attributes {
+        func helperFunction<T: Equatable>(card1Value: T, card2Value: T, possibleValues: [T]) -> T {
+            // This generic stuff is quite interesting
             // This returns the correct value to match with 2 other values
             if (card1Value == card2Value) {
                 return card1Value
             } else {
-                var listOfValues: [Attributes] = possibleValues
+                var listOfValues: [T] = possibleValues
                 
                 listOfValues.remove(at: listOfValues.firstIndex(of: card1Value) ?? 0)
                 listOfValues.remove(at: listOfValues.firstIndex(of: card2Value) ?? 0)
@@ -86,28 +83,28 @@ struct SetGame {
         
         let card1 = cards[randomIndex1]
         let card2 = cards[randomIndex2]
-        let newNumberOfShapes: Attributes = helperFunction(
+        let newNumberOfShapes: Int = helperFunction(
             card1Value: card1.numberOfShapes,
             card2Value: card2.numberOfShapes,
-            possibleValues: [Attributes.setNumberOfShapes(1), Attributes.setNumberOfShapes(2), Attributes.setNumberOfShapes(3)]
+            possibleValues: [Int.random(in: 1...3)]
         )
-        let newColor: Attributes = helperFunction(
-            card1Value: card1.color,
-            card2Value: card2.color,
-            possibleValues: listOfColors
-        )
-        let newShape: Attributes = helperFunction(
+        let newShape: String = helperFunction(
             card1Value: card1.shape,
             card2Value: card2.shape,
             possibleValues: listOfShapes
         )
-        let newPattern: Attributes = helperFunction(
-            card1Value: card1.pattern,
-            card2Value: card2.pattern,
-            possibleValues: listOfPatterns
+        let newOpacity: CGFloat = helperFunction(
+            card1Value: card1.opacity,
+            card2Value: card2.opacity,
+            possibleValues: listOfOpacities
+        )
+        let newColor: Color = helperFunction(
+            card1Value: card1.color,
+            card2Value: card2.color,
+            possibleValues: listOfColors
         )
         
-        let newCard = Card(shape: newShape, numberOfShapes: newNumberOfShapes, color: newColor, pattern: newPattern)
+        let newCard = Card(shape: newShape, numberOfShapes: newNumberOfShapes, color: newColor, opacity: newOpacity)
         var newCards = cards
         newCards[randomIndex3] = newCard
         return newCards
@@ -124,25 +121,25 @@ struct SetGame {
             let card3: Card = with[2]
             
             // Number of shapes
-            let myNumberOfShapesSet: Set<Attributes> = [card1.numberOfShapes, card2.numberOfShapes, card3.numberOfShapes]
+            let myNumberOfShapesSet: Set<Int> = [card1.numberOfShapes, card2.numberOfShapes, card3.numberOfShapes]
             if (myNumberOfShapesSet.count == 2) {
                 return false
             }
             
             // Color
-            let myColorSet: Set<Attributes> = [card1.color, card2.color, card3.color]
+            let myColorSet: Set<Color> = [card1.color, card2.color, card3.color]
             if (myColorSet.count == 2) {
                 return false
             }
             
             // Pattern
-            let myPatternSet: Set<Attributes> = [card1.pattern, card2.pattern, card3.pattern]
+            let myPatternSet: Set<CGFloat> = [card1.opacity, card2.opacity, card3.opacity]
             if (myPatternSet.count == 2) {
                 return false
             }
             
             // Shape string
-            let myShapeStringSet: Set<Attributes> = [card1.shape, card2.shape, card3.shape]
+            let myShapeStringSet: Set<String> = [card1.shape, card2.shape, card3.shape]
             if (myShapeStringSet.count == 2) {
                 return false
             }
@@ -195,9 +192,9 @@ struct SetGame {
     func getRandomCard() -> Card {
         return Card(
             shape: listOfShapes[Int.random(in: 0...2)],
-            numberOfShapes: Attributes.setNumberOfShapes(Int.random(in: 0...2)),
+            numberOfShapes: Int.random(in: 1...3),
             color: listOfColors[Int.random(in: 0...2)],
-            pattern: listOfPatterns[Int.random(in: 0...2)]
+            opacity: listOfOpacities[Int.random(in: 0...2)]
         )
     }
     
@@ -213,71 +210,10 @@ struct SetGame {
 
 struct Card: Identifiable {
     let id = UUID()
-    let shape: Attributes
-    let numberOfShapes: Attributes
-    let color: Attributes
-    let pattern: Attributes
+    let shape: String
+    let numberOfShapes: Int
+    let color: Color
+    let opacity: CGFloat
     var isChosen: Bool = false
     var isMatched: Bool = false
-}
-
-struct CustomShape: Equatable, Hashable {
-    let actualShape: AnyShape
-    let shapeString: String
-}
-
-enum Attributes: Equatable, Hashable {
-    case setShape(CustomShape)
-    case setNumberOfShapes(Int)
-    case setColor(Color)
-    case setPattern(String)
-    
-    func shape() -> CustomShape {
-        switch self {
-            case .setShape(let value):
-                return value
-            default:
-                return CustomShape(actualShape: AnyShape(Circle()), shapeString: "circle")
-        }
-    }
-    func numberOfShapes() -> Int {
-        switch self {
-            case .setNumberOfShapes(let value):
-                return value
-            default:
-                return 1
-        }
-    }
-    func color() -> Color {
-        switch self {
-            case .setColor(let value):
-                return value
-            default:
-                return .red
-        }
-    }
-    func pattern() -> String {
-        switch self {
-            case .setPattern(let value):
-                return value
-            default:
-                return "solid"
-        }
-    }
-}
-
-// Copied from https://forums.swift.org/t/cannot-convert-return-expression-of-type-circle-to-return-type-some-shape/27465/2
-// Accessed 30 September 2021
-protocol Shape {
-    associatedtype S
-}
-extension Shape {
-    typealias S = Self
-}
-
-struct Circle: Shape { }
-struct Rectangle: Shape { }
-
-struct AnyShape: Shape, Equatable, Hashable {
-    init<S: Shape>(_ shape: S) { }
 }
