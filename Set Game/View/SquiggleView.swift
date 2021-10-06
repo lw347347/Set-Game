@@ -51,19 +51,16 @@ struct SquiggleShape: Shape {
     }
 }
 struct SquiggleView: View {
+    var color: Color
+    var opacity: CGFloat
     var body: some View {
-        SquiggleShape().stroke(lineWidth: 4)
+        SquiggleShape().fill(color).opacity(opacity)
+        SquiggleShape().stroke(color, lineWidth: 4)
     }
 }
 
 struct SquiggleView_Previews: PreviewProvider {
     static var previews: some View {
-        HStack {
-            SquiggleView()
-            SquiggleView()
-            SquiggleView()
-        }
-        .padding()
-        .foregroundColor(.purple)
+        SquiggleView(color: .yellow, opacity: 0)
     }
 }

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2F61D660270E34D30071B29D /* SquiggleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F61D65F270E34D30071B29D /* SquiggleView.swift */; };
+		2F61D662270E5AC90071B29D /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F61D661270E5AC90071B29D /* CircleView.swift */; };
+		2F61D664270E5C1A0071B29D /* SquareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F61D663270E5C1A0071B29D /* SquareView.swift */; };
 		2F8908DB26F582FE001F7565 /* Set_GameApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8908DA26F582FE001F7565 /* Set_GameApp.swift */; };
 		2F8908DD26F582FE001F7565 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8908DC26F582FE001F7565 /* ContentView.swift */; };
 		2F8908DF26F58300001F7565 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F8908DE26F58300001F7565 /* Assets.xcassets */; };
@@ -19,6 +21,8 @@
 
 /* Begin PBXFileReference section */
 		2F61D65F270E34D30071B29D /* SquiggleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquiggleView.swift; sourceTree = "<group>"; };
+		2F61D661270E5AC90071B29D /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
+		2F61D663270E5C1A0071B29D /* SquareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareView.swift; sourceTree = "<group>"; };
 		2F8908D726F582FE001F7565 /* Set Game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Set Game.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F8908DA26F582FE001F7565 /* Set_GameApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Set_GameApp.swift; sourceTree = "<group>"; };
 		2F8908DC26F582FE001F7565 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -83,6 +87,8 @@
 				2F8908DC26F582FE001F7565 /* ContentView.swift */,
 				2F8908E926F583BC001F7565 /* CardView.swift */,
 				2F61D65F270E34D30071B29D /* SquiggleView.swift */,
+				2F61D661270E5AC90071B29D /* CircleView.swift */,
+				2F61D663270E5C1A0071B29D /* SquareView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -178,7 +184,9 @@
 				2F8908DD26F582FE001F7565 /* ContentView.swift in Sources */,
 				2F8908EA26F583BC001F7565 /* CardView.swift in Sources */,
 				2F8908DB26F582FE001F7565 /* Set_GameApp.swift in Sources */,
+				2F61D662270E5AC90071B29D /* CircleView.swift in Sources */,
 				2F8908F026F584C6001F7565 /* SetGameViewModel.swift in Sources */,
+				2F61D664270E5C1A0071B29D /* SquareView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
