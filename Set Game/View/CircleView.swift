@@ -13,7 +13,9 @@ struct CircleView: View {
     var body: some View {
         ZStack {
             Circle().fill(color).opacity(opacity)
+                .aspectRatio(1, contentMode: .fit)
             Circle().stroke(color, lineWidth: 4)
+                .aspectRatio(1, contentMode: .fit)
         }
     }
 }

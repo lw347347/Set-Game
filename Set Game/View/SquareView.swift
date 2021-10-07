@@ -13,8 +13,10 @@ struct SquareView: View {
     var body: some View {
         ZStack {
             Rectangle().fill(color).opacity(opacity)
+                .aspectRatio(1, contentMode: .fit)
             Rectangle().stroke(color, lineWidth: 4)
-        }.aspectRatio(1, contentMode: .fit)
+                .aspectRatio(1, contentMode: .fit)
+        }
     }
 }
 

@@ -54,8 +54,12 @@ struct SquiggleView: View {
     var color: Color
     var opacity: CGFloat
     var body: some View {
-        SquiggleShape().fill(color).opacity(opacity)
-        SquiggleShape().stroke(color, lineWidth: 4)
+        ZStack {
+            SquiggleShape().fill(color).opacity(opacity)
+                .aspectRatio(1, contentMode: .fit)
+            SquiggleShape().stroke(color, lineWidth: 4)
+                .aspectRatio(1, contentMode: .fit)
+        }
     }
 }
 

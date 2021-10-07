@@ -177,6 +177,12 @@ struct SetGame {
                 // They made a match
                 for card in chosenCards {
                     currentlyDisplayedCards[index(of: card) ?? 0].isMatched = true
+                    currentlyDisplayedCards.remove(at: index(of: card) ?? 0)
+                    numberOfCardsMatched += 1
+                    currentlyDisplayedCards.append(getRandomCard())
+                }
+                if (checkThatAMatchExists(with: currentlyDisplayedCards) == false) {
+                    currentlyDisplayedCards = createRandomMatch(with: currentlyDisplayedCards)
                 }
             } else {
                 // They did not make a match so do something
