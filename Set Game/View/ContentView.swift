@@ -14,7 +14,7 @@ struct ContentView: View {
         LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3)) {
             ForEach(setGameViewModel.cards) { card in
                 CardView(card: card).onTapGesture(perform: {
-                    setGameViewModel.choose(card: card)
+                    setGameViewModel.toggleChosen(card: card)
                 })
             }
         }
@@ -23,6 +23,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(setGameViewModel: SetGameViewModel())
+        let setGameViewModel = SetGameViewModel()
+        ContentView(setGameViewModel: setGameViewModel)
     }
 }

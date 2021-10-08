@@ -16,7 +16,7 @@ struct SetGame {
     let listOfOpacities: [CGFloat] = [0, 0.5, 1]
     
     init() {
-        for _ in 0...15 {
+        for _ in 0...11 {
             currentlyDisplayedCards.append(getRandomCard())
             
             if (!checkThatAMatchExists(with: currentlyDisplayedCards)) {
@@ -24,6 +24,7 @@ struct SetGame {
                 currentlyDisplayedCards = createRandomMatch(with: currentlyDisplayedCards);
             }
         }
+        print(currentlyDisplayedCards)
     }
     
     func createRandomMatch(with cards: [Card]) -> [Card] {
@@ -165,13 +166,17 @@ struct SetGame {
         return false
     }
     
-    mutating func choose(card: Card) {
+    mutating func toggleChosen(card: Card) {
         let actualCardIndex: Int = index(of: card) ?? 0
         let chosenCards: [Card] = currentlyDisplayedCards.filter {
             $0.isChosen == true
         }
         if (chosenCards.count < 3) {
-            currentlyDisplayedCards[actualCardIndex].isChosen = true
+            if currentlyDisplayedCards[actualCardIndex].isChosen {
+                currentlyDisplayedCards[actualCardIndex].isChosen = false
+            } else {
+                currentlyDisplayedCards[actualCardIndex].isChosen = true
+            }
         } else {
             if (checkIsMatch(with: chosenCards)) {
                 // They made a match
