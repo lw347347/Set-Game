@@ -20,16 +20,24 @@ struct CardView: View {
                                 ForEach(1...card.numberOfShapes, id: \.self) {_ in
                                     shapeBody(card: card)
                                 }
-                            }.shadow(radius: 10)
+                            }
                             Text("✅")
                         }
-                        
+                    } else if (card.isNotAMatch) {
+                        ZStack {
+                            HStack {
+                                ForEach(1...card.numberOfShapes, id: \.self) {_ in
+                                    shapeBody(card: card)
+                                }
+                            }
+                            Text("❗️")
+                        }
                     } else {
                         HStack {
                             ForEach(1...card.numberOfShapes, id: \.self) {_ in
                                 shapeBody(card: card)
                             }
-                        }.shadow(radius: 2)
+                        }
                     }
                     
                 } else {
@@ -47,7 +55,7 @@ struct CardView: View {
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
         if #available(iOS 15.0, *) {
-            CardView(card: Card(shape: "Squiggle", numberOfShapes: 3, color: Color.red, opacity: 0.5, isChosen: true, isMatched: true))
+            CardView(card: Card(shape: "Squiggle", numberOfShapes: 1, color: Color.red, opacity: 0.5, isChosen: true, isMatched: true))
                 .previewInterfaceOrientation(.portrait)
         } else {
             // Fallback on earlier versions

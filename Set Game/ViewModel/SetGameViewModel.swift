@@ -19,7 +19,15 @@ class SetGameViewModel: ObservableObject {
         setGame.toggleChosen(card: card)
     }
     
+    public func deal3MoreCards() {
+        setGame.deal3MoreCards();
+    }
+    
     private static func createGame() -> SetGame {
         return SetGame()
+    }
+    
+    public func createNewGame() -> Void {
+        setGame = SetGameViewModel.createGame()
     }
 }

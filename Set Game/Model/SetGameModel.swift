@@ -28,7 +28,7 @@ struct SetGame {
         }
     }
     
-    func getRandomIndices(bottomRange: Int, topRangeInclusive: Int, excluding: [Int]) -> [Int]{
+    func getRandomIndices(bottomRange: Int, topRangeInclusive: Int, excluding: [Int], _ numberOfIndices: Int = 2) -> [Int]{
         var randomIndex1: Int = Int.random(in: bottomRange...topRangeInclusive)
         if (excluding.contains(randomIndex1)) {
             if (Int.random(in: 0...1) == 0) {
@@ -69,7 +69,32 @@ struct SetGame {
                 }
             }
         }
-        return [randomIndex1, randomIndex2]
+        if (numberOfIndices == 2) {
+            return [randomIndex1, randomIndex2]
+        } else {
+            var randomIndex3: Int = Int.random(in: bottomRange...topRangeInclusive)
+            if (randomIndex3 == randomIndex2 || randomIndex3 == randomIndex1 || excluding.contains(randomIndex3)) {
+                if (Int.random(in: 0...1) == 0) {
+                    while excluding.contains(randomIndex3) || randomIndex3 == randomIndex2 || randomIndex3 == randomIndex1 {
+                        if (randomIndex3 == bottomRange) {
+                            randomIndex3 = topRangeInclusive
+                        } else {
+                            randomIndex3 = randomIndex2 - 1
+                        }
+                    }
+                } else {
+                    while excluding.contains(randomIndex3) || randomIndex3 == randomIndex2 || randomIndex3 == randomIndex1 {
+                        if (randomIndex3 == topRangeInclusive) {
+                            randomIndex3 = bottomRange
+                        } else {
+                            randomIndex3 = randomIndex2 + 1
+                        }
+                    }
+                }
+            }
+            return [randomIndex1, randomIndex2, randomIndex3]
+        }
+        
     }
     
     func createMatch(card1: Card, card2: Card) -> Card {
@@ -169,6 +194,40 @@ struct SetGame {
         return false
     }
     
+    mutating func deal3MoreCards() {
+        // Check if they have three cards selected
+        let chosenCards: [Card] = currentlyDisplayedCards.filter { $0.isChosen == true }
+        if (chosenCards.count == 3) {
+            // Check if they are matched
+            var areMatches: Bool = false
+            for card in chosenCards {
+                if card.isMatched == false {
+                    areMatches = false
+                    break
+                } else {
+                    areMatches = true
+                }
+            }
+            if areMatches {
+                // Replace the three chosen cards
+                currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: chosenCards)
+                return
+            }
+        }
+        
+        // Display 3 new cards but not in the position of those already chosen
+        var excludedCardsIndices: [Int] = []
+        for card in chosenCards {
+            excludedCardsIndices.append(index(of: card) ?? 0)
+        }
+        let randomIndices = getRandomIndices(bottomRange: 0, topRangeInclusive: 11, excluding: excludedCardsIndices, 3)
+        currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: [
+            currentlyDisplayedCards[randomIndices[0]],
+            currentlyDisplayedCards[randomIndices[1]],
+            currentlyDisplayedCards[randomIndices[2]]
+        ])
+    }
+    
     mutating func toggleChosen(card: Card) {
         let actualCardIndex: Int = index(of: card) ?? 0
         let chosenCards: [Card] = currentlyDisplayedCards.filter {
@@ -191,9 +250,11 @@ struct SetGame {
                     for card in newChosenCards {
                         currentlyDisplayedCards[index(of: card) ?? 0].isMatched = true
                     }
-                    
                 } else {
                     // They did not make a match so do something
+                    for card in newChosenCards {
+                        currentlyDisplayedCards[index(of: card) ?? 0].isNotAMatch = true
+                    }
                 }
             }
         } else {
@@ -202,11 +263,11 @@ struct SetGame {
                 // They made a match
                 // Replace those three cards
                 currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: chosenCards)
-                
             } else {
                 // They did not make a match :(
                 for card in chosenCards {
                     currentlyDisplayedCards[index(of: card) ?? 0].isChosen = false
+                    currentlyDisplayedCards[index(of: card) ?? 0].isNotAMatch = false
                 }
             }
             
@@ -269,4 +330,5 @@ struct Card: Identifiable {
     let opacity: CGFloat
     var isChosen: Bool = false
     var isMatched: Bool = false
+    var isNotAMatch: Bool = false // For displaying if this is not a potential match
 }
