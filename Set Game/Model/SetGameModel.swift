@@ -188,7 +188,7 @@ struct SetGame {
             if (newChosenCards.count == 3) {
                 if (checkIsMatch(with: newChosenCards)) {
                     // They made a match
-                    for card in chosenCards {
+                    for card in newChosenCards {
                         currentlyDisplayedCards[index(of: card) ?? 0].isMatched = true
                     }
                     
@@ -205,6 +205,9 @@ struct SetGame {
                 
             } else {
                 // They did not make a match :(
+                for card in chosenCards {
+                    currentlyDisplayedCards[index(of: card) ?? 0].isChosen = false
+                }
             }
             
             // Toggle the card they just touched

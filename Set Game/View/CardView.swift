@@ -11,22 +11,24 @@ struct CardView: View {
     var card: Card
     
     var body: some View {
-        ZStack {
-            if (card.isChosen) {
-                HStack {
-                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
-                        shapeBody(card: card).padding()
-                    }
-                }.border(.green, width: 9)
+        if (card.isChosen) {
+            if (card.isMatched) {
+                Text("✅")
             } else {
                 HStack {
                     ForEach(1...card.numberOfShapes, id: \.self) {_ in
                         shapeBody(card: card)
                     }
+                }.shadow(radius: 10)
+            }
+            
+        } else {
+            HStack {
+                ForEach(1...card.numberOfShapes, id: \.self) {_ in
+                    shapeBody(card: card)
                 }
             }
-        }.padding()
-            .aspectRatio(2/3, contentMode: .fit)
+        }
     }
 }
 

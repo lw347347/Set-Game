@@ -15,7 +15,7 @@ struct ContentView: View {
             ForEach(setGameViewModel.cards) { card in
                 CardView(card: card).onTapGesture(perform: {
                     setGameViewModel.toggleChosen(card: card)
-                })
+                }).aspectRatio(2/3, contentMode: .fit)
             }
         }
     }
