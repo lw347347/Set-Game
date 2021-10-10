@@ -19,54 +19,61 @@ struct SetGame {
         for _ in 0...11 {
             currentlyDisplayedCards.append(getRandomCard())
             
-            if (!checkThatAMatchExists(with: currentlyDisplayedCards)) {
-                // We need to add a match
-                currentlyDisplayedCards = createRandomMatch(with: currentlyDisplayedCards);
-            }
         }
-        print(currentlyDisplayedCards)
+        if (!checkThatAMatchExists(with: currentlyDisplayedCards)) {
+            // We need to add a match
+            let replaceCardIndex = Int.random(in: 0...11)
+            let randomIndices = getRandomIndices(bottomRange: 0, topRangeInclusive: 11, excluding: [replaceCardIndex])
+            currentlyDisplayedCards[replaceCardIndex] = createMatch(card1: currentlyDisplayedCards[randomIndices[0]], card2: currentlyDisplayedCards[randomIndices[1]]);
+        }
     }
     
-    func createRandomMatch(with cards: [Card]) -> [Card] {
+    func getRandomIndices(bottomRange: Int, topRangeInclusive: Int, excluding: [Int]) -> [Int]{
+        var randomIndex1: Int = Int.random(in: bottomRange...topRangeInclusive)
+        if (excluding.contains(randomIndex1)) {
+            if (Int.random(in: 0...1) == 0) {
+                while excluding.contains(randomIndex1) {
+                    if (randomIndex1 == bottomRange) {
+                        randomIndex1 = topRangeInclusive
+                    } else {
+                        randomIndex1 = randomIndex1 - 1
+                    }
+                }
+            } else {
+                while excluding.contains(randomIndex1) {
+                    if (randomIndex1 == topRangeInclusive) {
+                        randomIndex1 = bottomRange
+                    } else {
+                        randomIndex1 = randomIndex1 + 1
+                    }
+                }
+            }
+        }
+        var randomIndex2: Int = Int.random(in: bottomRange...topRangeInclusive)
+        if (randomIndex2 == randomIndex1 || excluding.contains(randomIndex2)) {
+            if (Int.random(in: 0...1) == 0) {
+                while excluding.contains(randomIndex2) {
+                    if (randomIndex2 == bottomRange) {
+                        randomIndex2 = topRangeInclusive
+                    } else {
+                        randomIndex2 = randomIndex2 - 1
+                    }
+                }
+            } else {
+                while excluding.contains(randomIndex2) {
+                    if (randomIndex2 == topRangeInclusive) {
+                        randomIndex2 = bottomRange
+                    } else {
+                        randomIndex2 = randomIndex2 + 1
+                    }
+                }
+            }
+        }
+        return [randomIndex1, randomIndex2]
+    }
+    
+    func createMatch(card1: Card, card2: Card) -> Card {
         // This function replaces one card from the array to make a match from two randomly selected cards
-        let randomIndex1: Int = Int.random(in: 0..<12)
-        var randomIndex2: Int = Int.random(in: 0..<12)
-        if (randomIndex2 == randomIndex1) {
-            if (Int.random(in: 0...1) == 0) {
-                if (randomIndex2 == 0) {
-                    randomIndex2 = 11
-                } else {
-                    randomIndex2 = randomIndex2 - 1
-                }
-            } else {
-                if (randomIndex2 == 11) {
-                    randomIndex2 = 0
-                } else {
-                    randomIndex2 = randomIndex2 + 1
-                }
-            }
-        }
-        var randomIndex3: Int = Int.random(in: 0..<12)
-        if (randomIndex3 == randomIndex1 || randomIndex3 == randomIndex2) {
-            if (Int.random(in: 0...1) == 0) {
-                while (randomIndex3 != randomIndex1 && randomIndex3 != randomIndex2) {
-                    if (randomIndex3 == 0) {
-                        randomIndex3 = 11
-                    } else {
-                        randomIndex3 = randomIndex3 - 1
-                    }
-                }
-            } else {
-                while (randomIndex3 != randomIndex1 && randomIndex3 != randomIndex2) {
-                    if (randomIndex3 == 11) {
-                        randomIndex3 = 0
-                    } else {
-                        randomIndex3 = randomIndex3 + 1
-                    }
-                }
-            }
-        }
-        
         func helperFunction<T: Equatable>(card1Value: T, card2Value: T, possibleValues: [T]) -> T {
             // This generic stuff is quite interesting
             // This returns the correct value to match with 2 other values
@@ -81,9 +88,7 @@ struct SetGame {
                 return listOfValues[0]
             }
         }
-        
-        let card1 = cards[randomIndex1]
-        let card2 = cards[randomIndex2]
+
         let newNumberOfShapes: Int = helperFunction(
             card1Value: card1.numberOfShapes,
             card2Value: card2.numberOfShapes,
@@ -106,9 +111,7 @@ struct SetGame {
         )
         
         let newCard = Card(shape: newShape, numberOfShapes: newNumberOfShapes, color: newColor, opacity: newOpacity)
-        var newCards = cards
-        newCards[randomIndex3] = newCard
-        return newCards
+        return newCard
     }
     
     func checkIsMatch(with: [Card]) -> Bool {
@@ -171,33 +174,69 @@ struct SetGame {
         let chosenCards: [Card] = currentlyDisplayedCards.filter {
             $0.isChosen == true
         }
-        if (chosenCards.count < 3) {
+        if (chosenCards.count <= 2) {
             if currentlyDisplayedCards[actualCardIndex].isChosen {
                 currentlyDisplayedCards[actualCardIndex].isChosen = false
             } else {
                 currentlyDisplayedCards[actualCardIndex].isChosen = true
             }
-        } else {
-            if (checkIsMatch(with: chosenCards)) {
-                // They made a match
-                for card in chosenCards {
-                    currentlyDisplayedCards[index(of: card) ?? 0].isMatched = true
-                    currentlyDisplayedCards.remove(at: index(of: card) ?? 0)
-                    numberOfCardsMatched += 1
-                    currentlyDisplayedCards.append(getRandomCard())
-                }
-                if (checkThatAMatchExists(with: currentlyDisplayedCards) == false) {
-                    currentlyDisplayedCards = createRandomMatch(with: currentlyDisplayedCards)
-                }
-            } else {
-                // They did not make a match so do something
+            
+            let newChosenCards: [Card] = currentlyDisplayedCards.filter {
+                $0.isChosen == true
             }
             
-            // Remove all chosen cards
-            for card in chosenCards {
-                currentlyDisplayedCards[index(of: card) ?? 0].isChosen = false
+            if (newChosenCards.count == 3) {
+                if (checkIsMatch(with: newChosenCards)) {
+                    // They made a match
+                    for card in chosenCards {
+                        currentlyDisplayedCards[index(of: card) ?? 0].isMatched = true
+                    }
+                    
+                } else {
+                    // They did not make a match so do something
+                }
+            }
+        } else {
+            // They either made a match recently or they didn't
+            if (checkIsMatch(with: chosenCards)) {
+                // They made a match
+                // Replace those three cards
+                currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: chosenCards)
+                
+            } else {
+                // They did not make a match :(
+            }
+            
+            // Toggle the card they just touched
+            currentlyDisplayedCards[actualCardIndex].isChosen = !currentlyDisplayedCards[actualCardIndex].isChosen
+        }
+    }
+    
+    func getCorrectCards(cards: [Card], cardsToRemove: [Card]) -> [Card] {
+        var cardsToAdd = [getRandomCard(), getRandomCard(), getRandomCard()]
+        
+        var potentialCards = cards
+        for loopIndex in 0...2 {
+            let cardIndex: Int = index(of: cardsToRemove[loopIndex]) ?? 0
+            potentialCards[cardIndex] = cardsToAdd[loopIndex]
+        }
+        
+        // Check that a match will exist
+        if (checkThatAMatchExists(with: potentialCards) == false) {
+            let randomIndices = getRandomIndices(
+                bottomRange: 0,
+                topRangeInclusive: 11,
+                excluding: [index(of: cardsToRemove[0]) ?? 0, index(of: cardsToRemove[1]) ?? 1, index(of: cardsToRemove[2]) ?? 2]
+            )
+            cardsToAdd[0] = createMatch(card1: cards[randomIndices[0]], card2: cards[randomIndices[1]])
+            cardsToAdd = cardsToAdd.shuffled()
+            
+            for loopIndex in 0...2 {
+                potentialCards[index(of: cardsToRemove[loopIndex]) ?? 0] = cardsToAdd[loopIndex]
             }
         }
+        
+        return potentialCards
     }
     
     func getRandomCard() -> Card {
