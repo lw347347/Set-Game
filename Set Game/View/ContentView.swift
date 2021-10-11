@@ -54,6 +54,8 @@ struct ContentView: View {
                     .transition(.offset(x: getRandomOffset(), y: getRandomOffset()))
                 }.aspectRatio(3/2, contentMode: .fit)
             }
+        }.onAppear {
+            setGameViewModel.addInitialCards()
         }
     }
     private func getRandomOffset() -> CGFloat {

@@ -8,14 +8,14 @@
 import Foundation
 
 class SetGameViewModel: ObservableObject {
-    @Published var setGame: SetGame = createGame()
+    @Published var setGame: SetGame = SetGame()
     
     var cards: [Card] {
         return setGame.currentlyDisplayedCards
     }
     
-    var previouslyDisplayedCards: [Card] {
-        return setGame.previouslyDisplayedCards
+    public func addInitialCards() {
+        setGame.addInitialCards()
     }
     
     public func toggleChosen(card: Card) {
@@ -33,5 +33,6 @@ class SetGameViewModel: ObservableObject {
     
     public func createNewGame() -> Void {
         setGame = SetGameViewModel.createGame()
+        setGame.addInitialCards()
     }
 }
