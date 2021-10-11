@@ -55,6 +55,8 @@ struct ContentView: View {
                             })
                                 .matchedGeometryEffect(id: card.id, in: dealingCards)
                         }
+                    } else {
+                        CardView(card: Card(shape: "Fake", numberOfShapes: 0, color: .red, opacity: 0))
                     }
                 }.aspectRatio(3/2, contentMode: .fit)
             }
@@ -67,6 +69,10 @@ struct ContentView: View {
                     CardView(card: card)
                         .matchedGeometryEffect(id: card.id, in: dealingCards)
                         .offset(x: getRandomOffset(), y: getRandomOffset())
+                        .onAppear {
+                            dealCard(card)
+                        }
+                    
                 }
             }
         }.frame(width: 50, height: 50, alignment: .bottom)

@@ -12,26 +12,38 @@ struct CardView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
-                if (card.isChosen) {
-                    if (card.isMatched) {
-                        ZStack {
+            if card.numberOfShapes == 0 {
+                // Empty view
+                ZStack {}
+            } else {
+                ZStack {
+                    if (card.isChosen) {
+                        if (card.isMatched) {
+                            ZStack {
+                                HStack {
+                                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
+                                        shapeBody(card: card)
+                                    }
+                                }
+                                Text("✅")
+                            }
+                        } else if (card.isNotAMatch) {
+                            ZStack {
+                                HStack {
+                                    ForEach(1...card.numberOfShapes, id: \.self) {_ in
+                                        shapeBody(card: card)
+                                    }
+                                }
+                                Text("❗️")
+                            }
+                        } else {
                             HStack {
                                 ForEach(1...card.numberOfShapes, id: \.self) {_ in
                                     shapeBody(card: card)
                                 }
                             }
-                            Text("✅")
                         }
-                    } else if (card.isNotAMatch) {
-                        ZStack {
-                            HStack {
-                                ForEach(1...card.numberOfShapes, id: \.self) {_ in
-                                    shapeBody(card: card)
-                                }
-                            }
-                            Text("❗️")
-                        }
+                        
                     } else {
                         HStack {
                             ForEach(1...card.numberOfShapes, id: \.self) {_ in
@@ -39,15 +51,8 @@ struct CardView: View {
                             }
                         }
                     }
-                    
-                } else {
-                    HStack {
-                        ForEach(1...card.numberOfShapes, id: \.self) {_ in
-                            shapeBody(card: card)
-                        }
-                    }
-                }
-            }.position(x: geometry.frame(in: .local).midX, y: geometry.frame(in: .local).midY)
+                }.position(x: geometry.frame(in: .local).midX, y: geometry.frame(in: .local).midY)
+            }            
         }.padding(5)
     }
 }
