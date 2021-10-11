@@ -66,15 +66,35 @@ struct ContentView: View {
                 if (!isDealt(card)) {
                     CardView(card: card)
                         .matchedGeometryEffect(id: card.id, in: dealingCards)
+                        .offset(x: getRandomOffset(), y: getRandomOffset())
                 }
             }
         }.frame(width: 50, height: 50, alignment: .bottom)
     }
+    private func getRandomOffset() -> CGFloat {
+        var valueToReturn: Int
+        if Int.random(in: 0...1) == 1 {
+            valueToReturn = Int.random(in: 1000...2000)
+        } else {
+            valueToReturn = Int.random(in: -2000 ... -1000)
+        }
+        return CGFloat(valueToReturn)
+    }
     private func dealCards() -> Void {
         dealtCards = Set<UUID>()
-        withAnimation(.easeInOut(duration: 3)) {
-            for card in setGameViewModel.cards {
-                dealtCards.insert(card.id)
+        for card in setGameViewModel.cards {
+            dealCard(card)
+        }
+    }
+    private func dealCard(_ card: Card) -> Void {
+        withAnimation(.easeInOut(duration:1)) {
+            dealtCards.insert(card.id)
+        }
+    }
+    private func undealCard(_ card: Card) -> Void {
+        withAnimation(.easeInOut(duration:1)) {
+            if let index = dealtCards.firstIndex(of: card.id) {
+                dealtCards.remove(at: index)
             }
         }
     }
