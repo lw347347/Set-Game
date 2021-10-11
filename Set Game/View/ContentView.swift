@@ -10,14 +10,8 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var setGameViewModel: SetGameViewModel
     
-    @State private var dealtCards = Set<UUID>()
-    
-    @Namespace private var dealingCards
-    @Namespace private var undealingCards
-    
     var body: some View {
         VStack(alignment: .center) {
-            randomDeckOffScreenBody
             gameBody
         }
     }
@@ -27,20 +21,19 @@ struct ContentView: View {
                 Button("New Game") {
                     withAnimation {
                         setGameViewModel.createNewGame()
-                        dealCards()
                     }
                 }
                 Button("Deal 3 More Cards") {
-                    setGameViewModel.deal3MoreCards()
+                    withAnimation {
+                        setGameViewModel.deal3MoreCards()                        
+                    }
                 }
             }
             LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3)) {
                 ForEach(setGameViewModel.cards) { card in
-                    if (isDealt(card)) {
+                    ZStack {
                         if card.isChosen {
                             CardView(card: card)
-                                .matchedGeometryEffect(id: card.id, in: dealingCards)
-                                .matchedGeometryEffect(id: card.id, in: undealingCards)
                                 .onTapGesture(perform: {
                                     withAnimation {
                                         setGameViewModel.toggleChosen(card: card)
@@ -56,35 +49,12 @@ struct ContentView: View {
                                     setGameViewModel.toggleChosen(card: card)
                                 }
                             })
-                                .matchedGeometryEffect(id: card.id, in: dealingCards)
-                                .matchedGeometryEffect(id: card.id, in: undealingCards)
                         }
-                    } else {
-                        CardView(card: Card(shape: "Fake", numberOfShapes: 0, color: .red, opacity: 0))
                     }
+                    .transition(.offset(x: getRandomOffset(), y: getRandomOffset()))
                 }.aspectRatio(3/2, contentMode: .fit)
             }
         }
-    }
-    var randomDeckOffScreenBody: some View {
-        ZStack {
-            ForEach(setGameViewModel.cards) { card in
-                if (!isDealt(card)) {
-                    CardView(card: card)
-                        .matchedGeometryEffect(id: card.id, in: dealingCards)
-                        .position(x: getRandomOffset(), y: getRandomOffset())
-                        .onAppear {
-                            dealCard(card)
-                        }
-                    
-                }
-            }
-            ForEach(setGameViewModel.previouslyDisplayedCards) { card in
-                CardView(card: card)
-                    .position(x: getRandomOffset(), y: getRandomOffset())
-                    .matchedGeometryEffect(id: card.id, in: undealingCards)
-            }
-        }.frame(width: 50, height: 50, alignment: .bottom)
     }
     private func getRandomOffset() -> CGFloat {
         var valueToReturn: Int
@@ -94,27 +64,6 @@ struct ContentView: View {
             valueToReturn = Int.random(in: -2000 ... -1000)
         }
         return CGFloat(valueToReturn)
-    }
-    private func dealCards() -> Void {
-        dealtCards = Set<UUID>()
-        for card in setGameViewModel.cards {
-            dealCard(card)
-        }
-    }
-    private func dealCard(_ card: Card) -> Void {
-        withAnimation(.easeInOut(duration:1)) {
-            dealtCards.insert(card.id)
-        }
-    }
-    private func undealCard(_ card: Card) -> Void {
-        withAnimation(.easeInOut(duration:1)) {
-            if let index = dealtCards.firstIndex(of: card.id) {
-                dealtCards.remove(at: index)
-            }
-        }
-    }
-    private func isDealt(_ card: Card) -> Bool {
-        return dealtCards.contains(card.id)
     }
 }
 
