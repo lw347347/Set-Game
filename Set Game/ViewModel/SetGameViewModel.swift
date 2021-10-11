@@ -14,6 +14,10 @@ class SetGameViewModel: ObservableObject {
         return setGame.currentlyDisplayedCards
     }
     
+    var previouslyDisplayedCards: [Card] {
+        return setGame.previouslyDisplayedCards
+    }
+    
     public func toggleChosen(card: Card) {
         print("clicked a card")
         setGame.toggleChosen(card: card)

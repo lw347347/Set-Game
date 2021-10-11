@@ -11,7 +11,9 @@ struct ContentView: View {
     @ObservedObject var setGameViewModel: SetGameViewModel
     
     @State private var dealtCards = Set<UUID>()
+    
     @Namespace private var dealingCards
+    @Namespace private var undealingCards
     
     var body: some View {
         VStack(alignment: .center) {
@@ -38,6 +40,7 @@ struct ContentView: View {
                         if card.isChosen {
                             CardView(card: card)
                                 .matchedGeometryEffect(id: card.id, in: dealingCards)
+                                .matchedGeometryEffect(id: card.id, in: undealingCards)
                                 .onTapGesture(perform: {
                                     withAnimation {
                                         setGameViewModel.toggleChosen(card: card)
@@ -54,6 +57,7 @@ struct ContentView: View {
                                 }
                             })
                                 .matchedGeometryEffect(id: card.id, in: dealingCards)
+                                .matchedGeometryEffect(id: card.id, in: undealingCards)
                         }
                     } else {
                         CardView(card: Card(shape: "Fake", numberOfShapes: 0, color: .red, opacity: 0))
@@ -68,12 +72,17 @@ struct ContentView: View {
                 if (!isDealt(card)) {
                     CardView(card: card)
                         .matchedGeometryEffect(id: card.id, in: dealingCards)
-                        .offset(x: getRandomOffset(), y: getRandomOffset())
+                        .position(x: getRandomOffset(), y: getRandomOffset())
                         .onAppear {
                             dealCard(card)
                         }
                     
                 }
+            }
+            ForEach(setGameViewModel.previouslyDisplayedCards) { card in
+                CardView(card: card)
+                    .position(x: getRandomOffset(), y: getRandomOffset())
+                    .matchedGeometryEffect(id: card.id, in: undealingCards)
             }
         }.frame(width: 50, height: 50, alignment: .bottom)
     }

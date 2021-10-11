@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SetGame {
     var currentlyDisplayedCards: [Card] = []
+    var previouslyDisplayedCards: [Card] = []
     var numberOfCardsMatched: Int = 0
     let listOfColors: [Color] = [.red, .yellow, .blue]
     let listOfShapes: [String] = ["Circle", "Square", "Squiggle"]
@@ -210,6 +211,7 @@ struct SetGame {
             }
             if areMatches {
                 // Replace the three chosen cards
+                previouslyDisplayedCards += chosenCards
                 currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: chosenCards)
                 return
             }
@@ -221,6 +223,12 @@ struct SetGame {
             excludedCardsIndices.append(index(of: card) ?? 0)
         }
         let randomIndices = getRandomIndices(bottomRange: 0, topRangeInclusive: 11, excluding: excludedCardsIndices, 3)
+        let cardsToRemove = [
+            currentlyDisplayedCards[randomIndices[0]],
+            currentlyDisplayedCards[randomIndices[1]],
+            currentlyDisplayedCards[randomIndices[2]]
+        ]
+        previouslyDisplayedCards += cardsToRemove
         currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: [
             currentlyDisplayedCards[randomIndices[0]],
             currentlyDisplayedCards[randomIndices[1]],
@@ -262,6 +270,7 @@ struct SetGame {
             if (checkIsMatch(with: chosenCards)) {
                 // They made a match
                 // Replace those three cards
+                previouslyDisplayedCards += chosenCards
                 currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: chosenCards)
             } else {
                 // They did not make a match :(
