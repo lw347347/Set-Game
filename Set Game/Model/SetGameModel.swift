@@ -24,7 +24,7 @@ struct SetGame {
             currentlyDisplayedCards.append(getRandomCard())
             
         }
-        if (!checkThatAMatchExists(with: currentlyDisplayedCards)) {
+        if (checkThatAMatchExists(with: currentlyDisplayedCards) == 0) {
             // We need to add a match
             let replaceCardIndex = Int.random(in: 0...11)
             let randomIndices = getRandomIndices(bottomRange: 0, topRangeInclusive: 11, excluding: [replaceCardIndex])
@@ -185,17 +185,23 @@ struct SetGame {
         }
     }
     
-    func checkThatAMatchExists (with cards: [Card]) -> Bool {
+    func checkThatAMatchExists (with cards: [Card]) -> Int {
+        var numberOfMatches: Int = 0
+        var cards = cards
         for card1 in cards {
             for card2 in cards {
                 for card3 in cards {
-                    if (checkIsMatch(with: [card1, card2, card3])) {
-                        return true
+                    let cardArray = [card1, card2, card3]
+                    if (checkIsMatch(with: cardArray)) {
+                        numberOfMatches += 1
+                        for card in cardArray {
+                            cards.remove(at: index(of: card, in: cards) ?? 0)
+                        }
                     }
                 }
             }
         }
-        return false
+        return numberOfMatches
     }
     
     mutating func deal3MoreCards() {
@@ -225,11 +231,6 @@ struct SetGame {
             excludedCardsIndices.append(index(of: card) ?? 0)
         }
         let randomIndices = getRandomIndices(bottomRange: 0, topRangeInclusive: 11, excluding: excludedCardsIndices, 3)
-        let cardsToRemove = [
-            currentlyDisplayedCards[randomIndices[0]],
-            currentlyDisplayedCards[randomIndices[1]],
-            currentlyDisplayedCards[randomIndices[2]]
-        ]
         currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: [
             currentlyDisplayedCards[randomIndices[0]],
             currentlyDisplayedCards[randomIndices[1]],
@@ -271,7 +272,51 @@ struct SetGame {
             if (checkIsMatch(with: chosenCards)) {
                 // They made a match
                 // Replace those three cards
-                currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: chosenCards)
+                if (numberOfCardsMatched <= 15-12) {
+                    var cardsToCheck: [Card] = []
+                    for card in currentlyDisplayedCards {
+                        for innerCard in chosenCards {
+                            if card.id == innerCard.id {
+                                break;
+                            }
+                        }
+                        cardsToCheck.append(card)
+                    }
+                    
+                    // We need to make sure to have 4 matches
+                    var numberOfMatches = 0
+                    var cardsWithMatches: [Card] = []
+                    for card in cardsToCheck {
+                        var hasAMatch = false
+                        for innerCard in cardsToCheck {
+                            if card.id != innerCard.id {
+                                for innerInnerCard in cardsToCheck {
+                                    if innerInnerCard.id != card.id {
+                                        let cardArray = [card, innerCard, innerInnerCard]
+                                        if checkIsMatch(with: cardArray) {
+                                            // Here's a match
+                                            numberOfMatches += 1
+                                            hasAMatch = true
+                                            
+                                            // Remove them from the cards to check
+                                            for card in cardArray {
+                                                cardsWithMatches.append(card)
+                                                cardsToCheck.remove(at: index(of: card, in: cardsToCheck) ?? 0)
+                                            }
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Get the correct cards from the cards that don't have matches
+                    let cardsToRemove = chosenCards + cardsWithMatches
+                    currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: cardsToRemove, numberOfMatchesNeeded: 4)
+                } else {
+                    currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: chosenCards)
+                }
             } else {
                 // They did not make a match :(
                 for card in chosenCards {
@@ -285,21 +330,22 @@ struct SetGame {
         }
     }
     
-    func getCorrectCards(cards: [Card], cardsToRemove: [Card]) -> [Card] {
+    func getCorrectCards(cards: [Card], cardsToRemove: [Card], numberOfMatchesNeeded: Int = 1) -> [Card] {
         var cardsToAdd = [getRandomCard(), getRandomCard(), getRandomCard()]
         
         var potentialCards = cards
-        for loopIndex in 0...2 {
-            let cardIndex: Int = index(of: cardsToRemove[loopIndex]) ?? 0
+        for loopIndex in 0...cardsToRemove.count - 1 {
+            let cardIndex: Int = index(of: cardsToRemove[loopIndex], in: cards) ?? 0
             potentialCards[cardIndex] = cardsToAdd[loopIndex]
         }
         
         // Check that a match will exist
-        if (checkThatAMatchExists(with: potentialCards) == false) {
+        let originalNumberOfMatches = checkThatAMatchExists(with: potentialCards)
+        while (checkThatAMatchExists(with: potentialCards) < numberOfMatchesNeeded || checkThatAMatchExists(with: potentialCards) == originalNumberOfMatches + 3) {
             let randomIndices = getRandomIndices(
                 bottomRange: 0,
                 topRangeInclusive: 11,
-                excluding: [index(of: cardsToRemove[0]) ?? 0, index(of: cardsToRemove[1]) ?? 1, index(of: cardsToRemove[2]) ?? 2]
+                excluding: [index(of: cardsToRemove[0], in: cards) ?? 0, index(of: cardsToRemove[1], in: cards) ?? 1, index(of: cardsToRemove[2], in: cards) ?? 2]
             )
             cardsToAdd[0] = createMatch(card1: cards[randomIndices[0]], card2: cards[randomIndices[1]])
             cardsToAdd = cardsToAdd.shuffled()
@@ -321,8 +367,8 @@ struct SetGame {
         )
     }
     
-    func index(of targetCard: Card) -> Int? {
-        for index in 0 ..< currentlyDisplayedCards.count {
+    func index(of targetCard: Card, in cardsToCheck: [Card] = currentlyDisplayedCards) -> Int? {
+        for index in 0 ..< cardsToCheck.count {
             if currentlyDisplayedCards[index].id == targetCard.id {
                 return index
             }
