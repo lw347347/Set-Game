@@ -83,7 +83,7 @@ struct SetGame {
                         if (randomIndex3 == bottomRange) {
                             randomIndex3 = topRangeInclusive
                         } else {
-                            randomIndex3 = randomIndex2 - 1
+                            randomIndex3 = randomIndex3 - 1
                         }
                     }
                 } else {
@@ -91,7 +91,7 @@ struct SetGame {
                         if (randomIndex3 == topRangeInclusive) {
                             randomIndex3 = bottomRange
                         } else {
-                            randomIndex3 = randomIndex2 + 1
+                            randomIndex3 = randomIndex3 + 1
                         }
                     }
                 }
@@ -111,8 +111,12 @@ struct SetGame {
             } else {
                 var listOfValues: [T] = possibleValues
                 
-                listOfValues.remove(at: listOfValues.firstIndex(of: card1Value) ?? 0)
-                listOfValues.remove(at: listOfValues.firstIndex(of: card2Value) ?? 0)
+                if let index = listOfValues.firstIndex(of: card1Value) {
+                    listOfValues.remove(at: index)
+                }
+                if let index = listOfValues.firstIndex(of: card2Value) {
+                    listOfValues.remove(at: index)
+                }
                 
                 return listOfValues[0]
             }
@@ -121,7 +125,7 @@ struct SetGame {
         let newNumberOfShapes: Int = helperFunction(
             card1Value: card1.numberOfShapes,
             card2Value: card2.numberOfShapes,
-            possibleValues: [Int.random(in: 1...3)]
+            possibleValues: [1, 2, 3]
         )
         let newShape: String = helperFunction(
             card1Value: card1.shape,
@@ -140,6 +144,11 @@ struct SetGame {
         )
         
         let newCard = Card(shape: newShape, numberOfShapes: newNumberOfShapes, color: newColor, opacity: newOpacity)
+        
+        // Sanity check
+        if (!checkIsMatch(with: [card1, card2, newCard])) {
+            print("That actually wasn't a match")
+        }
         return newCard
     }
     
@@ -189,18 +198,23 @@ struct SetGame {
         var numberOfMatches: Int = 0
         var cards = cards
         var cardsWithMatches: [Card] = []
+        var setOfMatches: Set<UUID> = Set()
         for card1 in cards {
             for card2 in cards {
                 for card3 in cards {
                     let cardArray = [card1, card2, card3]
-                    if (checkIsMatch(with: cardArray)) {
-                        numberOfMatches += 1
-                        for card in cardArray {
-                            if let index = index(of: card, in: cards) {
-                                cards.remove(at: index)
-                                cardsWithMatches.append(card)
+                    if card1.id != card2.id && card1.id != card3.id && card2.id != card3.id && !setOfMatches.contains(card1.id) && !setOfMatches.contains(card2.id) && !setOfMatches.contains(card3.id){
+                        if (checkIsMatch(with: cardArray)) {
+                            numberOfMatches += 1
+                            for card in cardArray {
+                                if let index = index(of: card, in: cards) {
+                                    setOfMatches.insert(card.id)
+                                    cards.remove(at: index)
+                                    cardsWithMatches.append(card)
+                                }
                             }
                         }
+                        break
                     }
                 }
             }
@@ -237,11 +251,15 @@ struct SetGame {
             }
         }
         let randomIndices = getRandomIndices(bottomRange: 0, topRangeInclusive: currentlyDisplayedCards.count - 1, excluding: excludedCardsIndices, 3)
+        var numberOfMatchesNeeded = 1
+        if (numberOfCardsToWin - numberOfCardsMatched <= 12) {
+            numberOfMatchesNeeded = 3
+        }
         currentlyDisplayedCards = getCorrectCards(cards: currentlyDisplayedCards, cardsToRemove: [
             currentlyDisplayedCards[randomIndices[0]],
             currentlyDisplayedCards[randomIndices[1]],
             currentlyDisplayedCards[randomIndices[2]]
-        ])
+        ], numberOfMatchesNeeded: numberOfMatchesNeeded)
     }
     
     mutating func toggleChosen(card: Card) {
@@ -333,17 +351,16 @@ struct SetGame {
             let cardIndex: Int = index(of: cardsToRemove[loopIndex], in: cards) ?? 0
             potentialCards[cardIndex] = cardsToAdd[loopIndex]
         }
-        var cardsToExclude = cardsToRemove
+        var cardsToExclude: [Card] = []
         
         // Get the cards that have matches
         cardsToExclude += checkThatAMatchExists(with: potentialCards).cardsWithMatches
         
         
         // Check that the correct number of matches will exist
-        let originalNumberOfMatches = checkThatAMatchExists(with: potentialCards).numberOfMatches
         var cardToReturnIndex = 0
         while (checkThatAMatchExists(with: potentialCards).numberOfMatches < numberOfMatchesNeeded
-               && checkThatAMatchExists(with: potentialCards).numberOfMatches < originalNumberOfMatches + 3
+               && cardToReturnIndex < 3
         ) {
             var indicesToExclude: [Int] = []
             for card in cardsToExclude {
@@ -354,7 +371,7 @@ struct SetGame {
             
             let randomIndices = getRandomIndices(
                 bottomRange: 0,
-                topRangeInclusive: 11,
+                topRangeInclusive: potentialCards.count - 1,
                 excluding: indicesToExclude
             )
             for index in randomIndices {
@@ -391,6 +408,29 @@ struct SetGame {
             }
         }
         return nil
+    }
+    
+    mutating func giveHint() {
+        // get two cards that have a match
+        for card1 in currentlyDisplayedCards {
+            for card2 in currentlyDisplayedCards {
+                for card3 in currentlyDisplayedCards {
+                    var cardArray = [card1, card2, card3]
+                    if card1.id != card2.id && card1.id != card3.id && card2.id != card3.id {
+                        if (checkIsMatch(with: cardArray)) {
+                            cardArray.shuffle()
+                            if let index = index(of: cardArray[0], in: currentlyDisplayedCards) {
+                                currentlyDisplayedCards[index].isChosen = true
+                            }
+                            if let index = index(of: cardArray[1], in: currentlyDisplayedCards) {
+                                currentlyDisplayedCards[index].isChosen = true
+                            }
+                        }
+                        break
+                    }
+                }
+            }
+        }
     }
     
     let numberOfCardsToWin: Int = 18

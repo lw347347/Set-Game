@@ -28,6 +28,11 @@ struct ContentView: View {
                         setGameViewModel.deal3MoreCards()                        
                     }
                 }
+                Button("Hint") {
+                    withAnimation {
+                        setGameViewModel.giveHint()
+                    }
+                }
             }
             LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3)) {
                 ForEach(setGameViewModel.cards) { card in

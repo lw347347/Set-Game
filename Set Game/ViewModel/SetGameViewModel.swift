@@ -18,6 +18,10 @@ class SetGameViewModel: ObservableObject {
         setGame.addInitialCards()
     }
     
+    public func giveHint() {
+        setGame.giveHint()
+    }
+    
     public func toggleChosen(card: Card) {
         print("clicked a card")
         setGame.toggleChosen(card: card)
