@@ -411,6 +411,13 @@ struct SetGame {
     }
     
     mutating func giveHint() {
+        for card in currentlyDisplayedCards {
+            if card.isChosen {
+                if let index = index(of: card, in: currentlyDisplayedCards) {
+                    currentlyDisplayedCards[index].isChosen = false
+                }
+            }
+        }
         // get two cards that have a match
         for card1 in currentlyDisplayedCards {
             for card2 in currentlyDisplayedCards {
@@ -425,8 +432,8 @@ struct SetGame {
                             if let index = index(of: cardArray[1], in: currentlyDisplayedCards) {
                                 currentlyDisplayedCards[index].isChosen = true
                             }
+                            return
                         }
-                        break
                     }
                 }
             }
